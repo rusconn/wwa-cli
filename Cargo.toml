@@ -1,0 +1,7 @@
+[workspace]
+members = ["cli", "lib"]
+resolver = "3"
+
+[profile.release]
+strip = "symbols"
+panic = "abort"

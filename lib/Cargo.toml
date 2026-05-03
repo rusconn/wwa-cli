@@ -1,0 +1,11 @@
+[package]
+name = "wwa"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+
+[features]
+serde = ["dep:serde"]
+
+[dependencies]
+serde = { version = "1.0.228", optional = true, features = ["derive"] }
