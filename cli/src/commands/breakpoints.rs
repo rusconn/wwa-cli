@@ -10,12 +10,6 @@ use wwa::{Breakpoint, BreakpointOptions as Options, Enemy, breakpoint_map};
 pub(crate) use {args::Args, error::Error};
 
 pub fn breakpoints(args: Args) -> Result<(), Error> {
-    if let (Some(min), Some(max)) = (args.min, args.max)
-        && min > max
-    {
-        return Err(Error::MinGreaterThanMax { min, max });
-    }
-
     let content = fs::read_to_string(&args.enemies_json5_path) //
         .map_err(|source| Error::ReadEnemies {
             path: args.enemies_json5_path.clone(),

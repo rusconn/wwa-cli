@@ -7,7 +7,4 @@ pub enum Error {
 
     #[error("failed to parse {path}: {source}")]
     ParseEnemies { path: PathBuf, source: json5::Error },
-
-    #[error("--min must be less than or equal to --max (min={min}, max={max})")]
-    MinGreaterThanMax { min: usize, max: usize },
 }
