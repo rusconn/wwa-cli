@@ -26,18 +26,35 @@ pub fn breakpoints(args: Args) -> Result<(), Error> {
 
     let map = breakpoint_map(&enemies, &options);
 
-    println!("{}", render(&map));
+    println!("{}", render(&map, args.json));
 
     Ok(())
 }
 
-fn render(map: &BTreeMap<Breakpoint, Vec<&Enemy>>) -> String {
+fn render(map: &BTreeMap<Breakpoint, Vec<&Enemy>>, json: bool) -> String {
+    if json {
+        render_as_json(map)
+    } else {
+        render_as_plain(map)
+    }
+}
+
+fn render_as_json(map: &BTreeMap<Breakpoint, Vec<&Enemy>>) -> String {
+    let map = map
+        .iter()
+        .map(|(bp, enemies)| (bp, enemies.iter().map(|enemy| &enemy.name).collect()))
+        .collect::<BTreeMap<&Breakpoint, Vec<&String>>>();
+
+    serde_json::to_string(&map).unwrap()
+}
+
+fn render_as_plain(map: &BTreeMap<Breakpoint, Vec<&Enemy>>) -> String {
     map.iter()
-        .map(|(breakpoint, enemies)| render_one(breakpoint, enemies))
+        .map(|(breakpoint, enemies)| render_as_plain_one(breakpoint, enemies))
         .join("\n")
 }
 
-fn render_one(breakpoint: &Breakpoint, enemies: &[&Enemy]) -> String {
+fn render_as_plain_one(breakpoint: &Breakpoint, enemies: &[&Enemy]) -> String {
     format!(
         "{breakpoint}: {}",
         enemies.iter().map(|enemy| &enemy.name).join(",")

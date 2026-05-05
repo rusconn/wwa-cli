@@ -14,4 +14,8 @@ pub struct Args {
     /// Max atk to list
     #[arg(long)]
     pub(super) max: Option<usize>,
+
+    /// Output in JSON format
+    #[arg(long)]
+    pub(super) json: bool,
 }
