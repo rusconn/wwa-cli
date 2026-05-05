@@ -18,4 +18,8 @@ pub struct Args {
     /// Output in JSON format
     #[arg(long)]
     pub(super) json: bool,
+
+    /// Pretty print JSON output
+    #[arg(long, requires = "json")]
+    pub(super) pretty: bool,
 }
