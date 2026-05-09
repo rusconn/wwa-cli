@@ -1,3 +1,3 @@
 mod breakpoint;
 
-pub use breakpoint::{Breakpoint, Options as BreakpointOptions, breakpoint_map};
+pub use breakpoint::{Breakpoint, EnemiesBreakpointExt, Options as BreakpointOptions};

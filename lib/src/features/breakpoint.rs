@@ -10,68 +10,62 @@ pub use options::Options;
 
 pub type Breakpoint = usize;
 
-/// Computes attack value breakpoints for multiple enemies.
-///
-/// Returns a map where keys are attack values (breakpoints) and values are
-/// lists of enemies that hit a breakpoint at that value.
-/// The enemies preserve the original order of the `enemies` slice.
-///
-/// # Example
-///
-/// ```
-/// use std::{
-///     collections::BTreeMap,
-///     num::NonZeroUsize,
-/// };
-///
-/// use wwa::{Enemy, BreakpointOptions, breakpoint_map};
-///
-/// let enemies = [
-///     Enemy {
-///         name: "goblin".to_owned(),
-///         hp: NonZeroUsize::new(30).unwrap(),
-///         def: 1,
-///     },
-///     Enemy {
-///         name: "wolf".to_owned(),
-///         hp: NonZeroUsize::new(25).unwrap(),
-///         def: 3,
-///     }
-/// ];
-///
-/// assert_eq!(
-///     breakpoint_map(
-///         &enemies,
-///         &BreakpointOptions::new(Some(11), Some(20))
-///     ),
-///     BTreeMap::from_iter([
-///         (11, vec![&enemies[0]]),
-///         (12, vec![&enemies[1]]),
-///         (16, vec![&enemies[0],&enemies[1]]), // enemies preserve the original order of the `enemies` slice
-///     ]),
-/// );
-///
-/// assert_eq!(
-///     breakpoint_map(
-///         &enemies,
-///         &BreakpointOptions::new(Some(20), Some(11))
-///     ),
-///     BTreeMap::new(), // if min > max, it returns empty
-/// );
-/// ```
-pub fn breakpoint_map<'a>(
-    enemies: &'a [Enemy],
-    options: &Options,
-) -> BTreeMap<Breakpoint, Vec<&'a Enemy>> {
-    let mut map = FxHashMap::<Breakpoint, Vec<&Enemy>>::default();
+/// Extension trait for [[`Enemy`]] to compute a breakpoint map.
+pub trait EnemiesBreakpointExt {
+    /// Computes attack value breakpoints for multiple enemies.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use std::{
+    ///     collections::BTreeMap,
+    ///     num::NonZeroUsize,
+    /// };
+    ///
+    /// use wwa::{Enemy, BreakpointOptions, EnemiesBreakpointExt};
+    ///
+    /// let enemies = [
+    ///     Enemy {
+    ///         name: "goblin".to_owned(),
+    ///         hp: NonZeroUsize::new(30).unwrap(),
+    ///         def: 1,
+    ///     },
+    ///     Enemy {
+    ///         name: "wolf".to_owned(),
+    ///         hp: NonZeroUsize::new(25).unwrap(),
+    ///         def: 3,
+    ///     }
+    /// ];
+    ///
+    /// assert_eq!(
+    ///     enemies.breakpoints(&BreakpointOptions::new(Some(11), Some(20))),
+    ///     BTreeMap::from_iter([
+    ///         (11, vec![&enemies[0]]),
+    ///         (12, vec![&enemies[1]]),
+    ///         (16, vec![&enemies[0], &enemies[1]]), // enemies preserve the original order of the `enemies` slice
+    ///     ]),
+    /// );
+    ///
+    /// assert_eq!(
+    ///     enemies.breakpoints(&BreakpointOptions::new(Some(20), Some(11))),
+    ///     BTreeMap::new(), // empty if min > max
+    /// );
+    /// ```
+    fn breakpoints(&self, options: &Options) -> BTreeMap<Breakpoint, Vec<&Enemy>>;
+}
 
-    for enemy in enemies {
-        for breakpoint in enemy.breakpoints(options) {
-            map.entry(breakpoint).or_default().push(enemy);
+impl EnemiesBreakpointExt for [Enemy] {
+    fn breakpoints(&self, options: &Options) -> BTreeMap<Breakpoint, Vec<&Enemy>> {
+        let mut map = FxHashMap::<Breakpoint, Vec<&Enemy>>::default();
+
+        for enemy in self {
+            for breakpoint in enemy.breakpoints(options) {
+                map.entry(breakpoint).or_default().push(enemy);
+            }
         }
-    }
 
-    map.into_iter().collect()
+        map.into_iter().collect()
+    }
 }
 
 impl Enemy {

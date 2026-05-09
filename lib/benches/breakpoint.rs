@@ -2,9 +2,9 @@ use std::num::NonZeroUsize;
 
 use criterion::{Criterion, criterion_group, criterion_main};
 
-use wwa::{BreakpointOptions, Enemy, breakpoint_map};
+use wwa::{BreakpointOptions, EnemiesBreakpointExt, Enemy};
 
-fn bench_breakpoint_map(c: &mut Criterion) {
+fn bench_enemies_breakpoints(c: &mut Criterion) {
     let mut enemies = Vec::new();
     for i in 0..100 {
         enemies.push(Enemy {
@@ -15,10 +15,10 @@ fn bench_breakpoint_map(c: &mut Criterion) {
     }
     let options = BreakpointOptions::default();
 
-    c.bench_function("breakpoint_map_100_enemies", |b| {
-        b.iter(|| breakpoint_map(&enemies, &options))
+    c.bench_function("enemies_breakpoints_100_enemies", |b| {
+        b.iter(|| enemies.breakpoints(&options))
     });
 }
 
-criterion_group!(benches, bench_breakpoint_map);
+criterion_group!(benches, bench_enemies_breakpoints);
 criterion_main!(benches);

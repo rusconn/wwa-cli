@@ -3,7 +3,7 @@ mod error;
 
 use std::{collections::BTreeMap, fmt::Write, fs};
 
-use wwa::{Breakpoint, BreakpointOptions as Options, Enemy, breakpoint_map};
+use wwa::{Breakpoint, BreakpointOptions as Options, EnemiesBreakpointExt, Enemy};
 
 pub(crate) use {args::Args, error::Error};
 
@@ -22,7 +22,7 @@ pub fn breakpoints(args: Args) -> Result<(), Error> {
 
     let options = Options::new(args.min, args.max);
 
-    let map = breakpoint_map(&enemies, &options);
+    let map = enemies.breakpoints(&options);
 
     println!("{}", render(&map, args.json, args.pretty));
 
