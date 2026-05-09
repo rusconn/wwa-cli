@@ -5,10 +5,12 @@ edition = "2024"
 license = "MIT"
 
 [features]
+default = ["breakpoint"]
+breakpoint = ["dep:rustc-hash"]
 serde = ["dep:serde"]
 
 [dependencies]
-rustc-hash = "2.1.2"
+rustc-hash = { version = "2.1.2", optional = true }
 serde = { version = "1.0.228", optional = true, features = ["derive"] }
 
 [dev-dependencies]
@@ -17,3 +19,4 @@ criterion = "0.8.2"
 [[bench]]
 name = "breakpoint"
 harness = false
+required-features = ["breakpoint"]
