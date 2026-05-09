@@ -1,9 +1,7 @@
 mod args;
 mod error;
 
-use std::{collections::BTreeMap, fs};
-
-use itertools::Itertools;
+use std::{collections::BTreeMap, fmt::Write, fs};
 
 use wwa::{Breakpoint, BreakpointOptions as Options, Enemy, breakpoint_map};
 
@@ -53,14 +51,18 @@ fn render_as_json(map: &BTreeMap<Breakpoint, Vec<&Enemy>>, pretty: bool) -> Stri
 }
 
 fn render_as_plain(map: &BTreeMap<Breakpoint, Vec<&Enemy>>) -> String {
-    map.iter()
-        .map(|(breakpoint, enemies)| render_as_plain_one(breakpoint, enemies))
-        .join("\n")
-}
-
-fn render_as_plain_one(breakpoint: &Breakpoint, enemies: &[&Enemy]) -> String {
-    format!(
-        "{breakpoint}: {}",
-        enemies.iter().map(|enemy| &enemy.name).join(",")
-    )
+    let mut s = String::with_capacity(map.len() * 32);
+    for (i, (breakpoint, enemies)) in map.iter().enumerate() {
+        if i > 0 {
+            s.push('\n');
+        }
+        write!(s, "{breakpoint}: ").unwrap();
+        for (j, enemy) in enemies.iter().enumerate() {
+            if j > 0 {
+                s.push(',');
+            }
+            s.push_str(&enemy.name);
+        }
+    }
+    s
 }
