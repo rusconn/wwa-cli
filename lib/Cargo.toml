@@ -8,6 +8,7 @@ license = "MIT"
 serde = ["dep:serde"]
 
 [dependencies]
+rustc-hash = "2.1.2"
 serde = { version = "1.0.228", optional = true, features = ["derive"] }
 
 [dev-dependencies]

@@ -2,6 +2,8 @@ mod options;
 
 use std::collections::BTreeMap;
 
+use rustc_hash::FxHashMap;
+
 use crate::Enemy;
 
 pub use options::Options;
@@ -61,7 +63,7 @@ pub fn breakpoint_map<'a>(
     enemies: &'a [Enemy],
     options: &Options,
 ) -> BTreeMap<Breakpoint, Vec<&'a Enemy>> {
-    let mut map = BTreeMap::<Breakpoint, Vec<&Enemy>>::new();
+    let mut map = FxHashMap::<Breakpoint, Vec<&Enemy>>::default();
 
     for enemy in enemies {
         for breakpoint in breakpoints(enemy, options) {
@@ -69,7 +71,7 @@ pub fn breakpoint_map<'a>(
         }
     }
 
-    map
+    map.into_iter().collect()
 }
 
 fn breakpoints(enemy: &Enemy, options: &Options) -> Vec<Breakpoint> {
