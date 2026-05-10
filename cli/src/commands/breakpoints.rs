@@ -1,5 +1,6 @@
 mod args;
 mod error;
+mod writers;
 
 use std::{
     collections::BTreeMap,
@@ -43,47 +44,8 @@ fn write(
     pretty: bool,
 ) -> Result<(), Error> {
     if json {
-        write_as_json(w, map, pretty)
+        writers::json::write(w, map, pretty)
     } else {
-        write_as_plain(w, map)
+        writers::plain::write(w, map)
     }
-}
-
-fn write_as_json(
-    w: &mut impl Write,
-    map: &BTreeMap<Breakpoint, Vec<&Enemy>>,
-    pretty: bool,
-) -> Result<(), Error> {
-    let map = map
-        .iter()
-        .map(|(bp, enemies)| (bp, enemies.iter().map(|enemy| &enemy.name).collect()))
-        .collect::<BTreeMap<&Breakpoint, Vec<&String>>>();
-
-    if pretty {
-        serde_json::to_writer_pretty(w, &map)?;
-    } else {
-        serde_json::to_writer(w, &map)?;
-    }
-
-    Ok(())
-}
-
-fn write_as_plain(
-    w: &mut impl Write,
-    map: &BTreeMap<Breakpoint, Vec<&Enemy>>,
-) -> Result<(), Error> {
-    for (i, (breakpoint, enemies)) in map.iter().enumerate() {
-        if i > 0 {
-            writeln!(w)?;
-        }
-        write!(w, "{breakpoint}: ")?;
-        for (j, enemy) in enemies.iter().enumerate() {
-            if j > 0 {
-                write!(w, ",")?;
-            }
-            write!(w, "{}", enemy.name)?;
-        }
-    }
-
-    Ok(())
 }
