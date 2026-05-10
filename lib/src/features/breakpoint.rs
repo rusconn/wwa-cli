@@ -104,25 +104,32 @@ impl Enemy {
         let min = options.min.unwrap_or(1);
         let max = options.max.unwrap_or(hp + def); // TODO: handle overflow
 
-        if max <= self.def {
-            return Vec::new();
-        }
-
-        let n_min = hp.div_ceil(max - def);
-        let n_max = if min <= def {
+        // hp  def  n    atk
+        //  8   3   8 ->  4
+        //          7 ->  5
+        //          6 ->  5
+        //          5 ->  5
+        //          4 ->  5
+        //          3 ->  6
+        //          2 ->  7,8,9,10
+        //          1 -> 11,12,13,...
+        let mut breakpoints = Vec::new();
+        let mut n = if min <= def {
             hp
         } else {
             hp.div_ceil(min - def)
         };
-
-        let mut breakpoints = Vec::new();
-
-        // TODO: improve efficiency
-        for n in (n_min..=n_max).rev() {
-            let atk = hp.div_ceil(n) + def;
-            if (min <= atk && atk <= max) && (breakpoints.last() != Some(&atk)) {
-                breakpoints.push(atk);
+        while n > 0 {
+            let n_times_min_atk = hp.div_ceil(n) + def;
+            let same_atk_min_n = hp.div_ceil(n_times_min_atk - def);
+            n = same_atk_min_n - 1;
+            if n_times_min_atk < min {
+                continue;
             }
+            if max < n_times_min_atk {
+                break;
+            }
+            breakpoints.push(n_times_min_atk);
         }
 
         breakpoints
@@ -157,5 +164,21 @@ mod tests {
         let options = Options::new(Some(8), Some(12));
         let bs = enemy.breakpoints(&options);
         assert_eq!(bs, vec![8, 9, 10]);
+    }
+
+    #[test]
+    fn test_breakpoints_edge() {
+        let enemy = Enemy {
+            name: "edge".to_string(),
+            hp: NonZeroUsize::new(8).unwrap(),
+            def: 3,
+        };
+        let options = Options::new(Some(7), None);
+        let bs = enemy.breakpoints(&options);
+        assert_eq!(bs, vec![7, 11]);
+
+        let options = Options::new(Some(8), None);
+        let bs = enemy.breakpoints(&options);
+        assert_eq!(bs, vec![11]);
     }
 }
