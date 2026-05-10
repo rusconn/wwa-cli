@@ -1,7 +1,11 @@
 mod args;
 mod error;
 
-use std::{collections::BTreeMap, fmt::Write, fs};
+use std::{
+    collections::BTreeMap,
+    fs,
+    io::{self, Write},
+};
 
 use wwa::{Breakpoint, BreakpointOptions as Options, EnemiesBreakpointExt, Enemy};
 
@@ -24,53 +28,62 @@ pub fn breakpoints(args: Args) -> Result<(), Error> {
 
     let map = enemies.breakpoints(&options);
 
-    println!("{}", render(&map, args.json, args.pretty)?);
+    let stdout = io::stdout().lock();
+    let mut stdout = io::BufWriter::new(stdout);
+    write(&mut stdout, &map, args.json, args.pretty)?;
+    writeln!(stdout)?;
 
     Ok(())
 }
 
-fn render(
+fn write(
+    w: &mut impl Write,
     map: &BTreeMap<Breakpoint, Vec<&Enemy>>,
     json: bool,
     pretty: bool,
-) -> Result<String, Error> {
+) -> Result<(), Error> {
     if json {
-        render_as_json(map, pretty)
+        write_as_json(w, map, pretty)
     } else {
-        render_as_plain(map)
+        write_as_plain(w, map)
     }
 }
 
-fn render_as_json(map: &BTreeMap<Breakpoint, Vec<&Enemy>>, pretty: bool) -> Result<String, Error> {
+fn write_as_json(
+    w: &mut impl Write,
+    map: &BTreeMap<Breakpoint, Vec<&Enemy>>,
+    pretty: bool,
+) -> Result<(), Error> {
     let map = map
         .iter()
         .map(|(bp, enemies)| (bp, enemies.iter().map(|enemy| &enemy.name).collect()))
         .collect::<BTreeMap<&Breakpoint, Vec<&String>>>();
 
-    let s = if pretty {
-        serde_json::to_string_pretty(&map)?
+    if pretty {
+        serde_json::to_writer_pretty(w, &map)?;
     } else {
-        serde_json::to_string(&map)?
-    };
+        serde_json::to_writer(w, &map)?;
+    }
 
-    Ok(s)
+    Ok(())
 }
 
-fn render_as_plain(map: &BTreeMap<Breakpoint, Vec<&Enemy>>) -> Result<String, Error> {
-    let mut s = String::with_capacity(map.len() * 32);
-
+fn write_as_plain(
+    w: &mut impl Write,
+    map: &BTreeMap<Breakpoint, Vec<&Enemy>>,
+) -> Result<(), Error> {
     for (i, (breakpoint, enemies)) in map.iter().enumerate() {
         if i > 0 {
-            s.push('\n');
+            writeln!(w)?;
         }
-        write!(s, "{breakpoint}: ")?;
+        write!(w, "{breakpoint}: ")?;
         for (j, enemy) in enemies.iter().enumerate() {
             if j > 0 {
-                s.push(',');
+                write!(w, ",")?;
             }
-            s.push_str(&enemy.name);
+            write!(w, "{}", enemy.name)?;
         }
     }
 
-    Ok(s)
+    Ok(())
 }

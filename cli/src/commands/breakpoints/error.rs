@@ -1,4 +1,4 @@
-use std::{fmt, io, path::PathBuf};
+use std::{io, path::PathBuf};
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -11,6 +11,6 @@ pub enum Error {
     #[error("failed to serialize to JSON: {0}")]
     SerializeJson(#[from] serde_json::Error),
 
-    #[error("failed to format output: {0}")]
-    Format(#[from] fmt::Error),
+    #[error("failed to write output: {0}")]
+    WriteOutput(#[from] io::Error),
 }
