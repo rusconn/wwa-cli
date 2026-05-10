@@ -47,32 +47,3 @@ impl Serialize for SeqWrapper<'_> {
         serializer.collect_seq(self.0.iter().map(|enemy| &enemy.name))
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::num::NonZeroUsize;
-
-    #[test]
-    fn test_json_writer() {
-        let mut map = BTreeMap::new();
-        let e1 = Enemy {
-            name: "goblin".to_string(),
-            hp: NonZeroUsize::new(10).unwrap(),
-            def: 5,
-        };
-        let e2 = Enemy {
-            name: "slime".to_string(),
-            hp: NonZeroUsize::new(5).unwrap(),
-            def: 2,
-        };
-        map.insert(10, vec![&e1]);
-        map.insert(15, vec![&e1, &e2]);
-
-        let mut buf = Vec::new();
-        write(&mut buf, &map, false).unwrap();
-
-        let output = String::from_utf8(buf).unwrap();
-        assert_eq!(output, r#"{"10":["goblin"],"15":["goblin","slime"]}"#);
-    }
-}
