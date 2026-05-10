@@ -24,12 +24,16 @@ pub fn breakpoints(args: Args) -> Result<(), Error> {
 
     let map = enemies.breakpoints(&options);
 
-    println!("{}", render(&map, args.json, args.pretty));
+    println!("{}", render(&map, args.json, args.pretty)?);
 
     Ok(())
 }
 
-fn render(map: &BTreeMap<Breakpoint, Vec<&Enemy>>, json: bool, pretty: bool) -> String {
+fn render(
+    map: &BTreeMap<Breakpoint, Vec<&Enemy>>,
+    json: bool,
+    pretty: bool,
+) -> Result<String, Error> {
     if json {
         render_as_json(map, pretty)
     } else {
@@ -37,26 +41,29 @@ fn render(map: &BTreeMap<Breakpoint, Vec<&Enemy>>, json: bool, pretty: bool) -> 
     }
 }
 
-fn render_as_json(map: &BTreeMap<Breakpoint, Vec<&Enemy>>, pretty: bool) -> String {
+fn render_as_json(map: &BTreeMap<Breakpoint, Vec<&Enemy>>, pretty: bool) -> Result<String, Error> {
     let map = map
         .iter()
         .map(|(bp, enemies)| (bp, enemies.iter().map(|enemy| &enemy.name).collect()))
         .collect::<BTreeMap<&Breakpoint, Vec<&String>>>();
 
-    if pretty {
-        serde_json::to_string_pretty(&map).unwrap()
+    let s = if pretty {
+        serde_json::to_string_pretty(&map)?
     } else {
-        serde_json::to_string(&map).unwrap()
-    }
+        serde_json::to_string(&map)?
+    };
+
+    Ok(s)
 }
 
-fn render_as_plain(map: &BTreeMap<Breakpoint, Vec<&Enemy>>) -> String {
+fn render_as_plain(map: &BTreeMap<Breakpoint, Vec<&Enemy>>) -> Result<String, Error> {
     let mut s = String::with_capacity(map.len() * 32);
+
     for (i, (breakpoint, enemies)) in map.iter().enumerate() {
         if i > 0 {
             s.push('\n');
         }
-        write!(s, "{breakpoint}: ").unwrap();
+        write!(s, "{breakpoint}: ")?;
         for (j, enemy) in enemies.iter().enumerate() {
             if j > 0 {
                 s.push(',');
@@ -64,5 +71,6 @@ fn render_as_plain(map: &BTreeMap<Breakpoint, Vec<&Enemy>>) -> String {
             s.push_str(&enemy.name);
         }
     }
-    s
+
+    Ok(s)
 }
