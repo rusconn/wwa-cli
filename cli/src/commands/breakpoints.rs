@@ -3,12 +3,11 @@ mod error;
 mod writers;
 
 use std::{
-    collections::BTreeMap,
     fs,
     io::{self, Write},
 };
 
-use wwa::{Breakpoint, BreakpointOptions as Options, EnemiesBreakpointExt, Enemy};
+use wwa::{BreakpointOptions as Options, EnemiesBreakpointExt, Enemy};
 
 pub(crate) use {args::Args, error::Error};
 
@@ -31,21 +30,8 @@ pub fn breakpoints(args: Args) -> Result<(), Error> {
 
     let stdout = io::stdout().lock();
     let mut stdout = io::BufWriter::new(stdout);
-    write(&mut stdout, &map, args.json, args.pretty)?;
+    args.format.write(&mut stdout, &map)?;
     writeln!(stdout)?;
 
     Ok(())
-}
-
-fn write(
-    w: &mut impl Write,
-    map: &BTreeMap<Breakpoint, Vec<&Enemy>>,
-    json: bool,
-    pretty: bool,
-) -> Result<(), Error> {
-    if json {
-        writers::json::write(w, map, pretty)
-    } else {
-        writers::plain::write(w, map)
-    }
 }

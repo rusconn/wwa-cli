@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 
 #[derive(Debug, Parser)]
 pub struct Args {
@@ -15,11 +15,15 @@ pub struct Args {
     #[arg(long)]
     pub(super) max: Option<usize>,
 
-    /// Output in JSON format
-    #[arg(long)]
-    pub(super) json: bool,
+    /// Output format
+    #[arg(long, value_enum, default_value_t)]
+    pub(super) format: Format,
+}
 
-    /// Pretty print JSON output
-    #[arg(long, requires = "json")]
-    pub(super) pretty: bool,
+#[derive(Debug, PartialEq, Eq, Clone, Default, ValueEnum)]
+pub(super) enum Format {
+    #[default]
+    Plain,
+    Json,
+    JsonPretty,
 }
