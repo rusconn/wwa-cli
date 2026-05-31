@@ -1,13 +1,13 @@
 use std::{collections::BTreeMap, io::Write};
 
-use wwa::{Breakpoint, Enemy};
+use anyhow::Result;
 
-use crate::BreakpointsError;
+use wwa::{Breakpoint, Enemy};
 
 pub(in super::super) fn write(
     w: &mut impl Write,
     map: &BTreeMap<Breakpoint, Vec<&Enemy>>,
-) -> Result<(), BreakpointsError> {
+) -> Result<()> {
     for (i, (breakpoint, enemies)) in map.iter().enumerate() {
         if i > 0 {
             writeln!(w)?;

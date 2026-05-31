@@ -1,5 +1,4 @@
 mod args;
-mod error;
 mod writers;
 
 use std::{
@@ -7,22 +6,18 @@ use std::{
     io::{self, Write},
 };
 
+use anyhow::{Context, Result};
+
 use wwa::{BreakpointOptions as Options, EnemiesBreakpointExt, Enemy};
 
-pub(crate) use {args::Args, error::Error};
+pub(crate) use args::Args;
 
-pub fn breakpoints(args: Args) -> Result<(), Error> {
-    let content = fs::read_to_string(&args.enemies_json5_path) //
-        .map_err(|source| Error::ReadEnemies {
-            path: args.enemies_json5_path.clone(),
-            source,
-        })?;
+pub fn breakpoints(args: Args) -> Result<()> {
+    let content = fs::read_to_string(&args.enemies_json5_path)
+        .with_context(|| format!("failed to read {}", args.enemies_json5_path.display()))?;
 
-    let enemies = json5::from_str::<Vec<Enemy>>(&content) //
-        .map_err(|source| Error::ParseEnemies {
-            path: args.enemies_json5_path.clone(),
-            source,
-        })?;
+    let enemies = json5::from_str::<Vec<Enemy>>(&content)
+        .with_context(|| format!("failed to parse {}", args.enemies_json5_path.display()))?;
 
     let options = Options::new(args.min, args.max);
 
@@ -30,8 +25,8 @@ pub fn breakpoints(args: Args) -> Result<(), Error> {
 
     let stdout = io::stdout().lock();
     let mut stdout = io::BufWriter::new(stdout);
-    args.format.write(&mut stdout, &map)?;
-    writeln!(stdout)?;
-
-    Ok(())
+    args.format
+        .write(&mut stdout, &map)
+        .context("failed to write output")?;
+    writeln!(stdout).context("failed to write output")
 }

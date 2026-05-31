@@ -1,23 +1,22 @@
 use std::{collections::BTreeMap, io::Write};
 
-use wwa::{Breakpoint, Enemy};
+use anyhow::{Context, Result};
 
-use crate::BreakpointsError;
+use wwa::{Breakpoint, Enemy};
 
 pub(in super::super) fn write(
     w: &mut impl Write,
     map: &BTreeMap<Breakpoint, Vec<&Enemy>>,
     pretty: bool,
-) -> Result<(), BreakpointsError> {
+) -> Result<()> {
     let map = MapWrapper(map);
 
     if pretty {
-        serde_json::to_writer_pretty(w, &map)?;
+        serde_json::to_writer_pretty(w, &map)
     } else {
-        serde_json::to_writer(w, &map)?;
+        serde_json::to_writer(w, &map)
     }
-
-    Ok(())
+    .context("failed to serialize to JSON")
 }
 
 use serde::{Serialize, Serializer};

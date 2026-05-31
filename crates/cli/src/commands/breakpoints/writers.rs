@@ -3,16 +3,18 @@ mod plain;
 
 use std::{collections::BTreeMap, io::Write};
 
+use anyhow::Result;
+
 use wwa::{Breakpoint, Enemy};
 
-use super::{Error, args::Format};
+use super::args::Format;
 
 impl Format {
     pub(super) fn write(
         &self,
         w: &mut impl Write,
         map: &BTreeMap<Breakpoint, Vec<&Enemy>>,
-    ) -> Result<(), Error> {
+    ) -> Result<()> {
         match self {
             Format::Plain => plain::write(w, map),
             Format::Json => json::write(w, map, false),
