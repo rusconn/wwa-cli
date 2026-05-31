@@ -10,7 +10,7 @@ use wwa::{Breakpoint, Enemy};
 use super::args::Format;
 
 impl Format {
-    pub(super) fn write(
+    pub(super) fn writeln(
         &self,
         w: &mut impl Write,
         map: &BTreeMap<Breakpoint, Vec<&Enemy>>,
@@ -19,7 +19,9 @@ impl Format {
             Format::Plain => plain::write(w, map),
             Format::Json => json::write(w, map, false),
             Format::JsonPretty => json::write(w, map, true),
-        }
+        }?;
+        writeln!(w)?;
+        Ok(())
     }
 }
 
@@ -64,15 +66,15 @@ mod tests {
     }
 
     #[rstest]
-    #[case(Format::Plain, "10: goblin\n15: goblin,slime")]
-    #[case(Format::Json, r#"{"10":["goblin"],"15":["goblin","slime"]}"#)]
+    #[case(Format::Plain, "10: goblin\n15: goblin,slime\n")]
+    #[case(Format::Json, concat!(r#"{"10":["goblin"],"15":["goblin","slime"]}"#, "\n"))]
     fn test_format_writers(
         map: &BTreeMap<Breakpoint, Vec<&'static Enemy>>,
         #[case] format: Format,
         #[case] expect: &str,
     ) {
         let mut buf = Vec::new();
-        format.write(&mut buf, map).unwrap();
+        format.writeln(&mut buf, map).unwrap();
 
         let output = String::from_utf8(buf).unwrap();
         assert_eq!(output, *expect);

@@ -1,10 +1,7 @@
 mod args;
 mod writers;
 
-use std::{
-    fs,
-    io::{self, Write},
-};
+use std::{fs, io};
 
 use anyhow::{Context, Result};
 
@@ -26,7 +23,6 @@ pub fn breakpoints(args: Args) -> Result<()> {
     let stdout = io::stdout().lock();
     let mut stdout = io::BufWriter::new(stdout);
     args.format
-        .write(&mut stdout, &map)
-        .context("failed to write output")?;
-    writeln!(stdout).context("failed to write output")
+        .writeln(&mut stdout, &map)
+        .context("failed to write output")
 }
