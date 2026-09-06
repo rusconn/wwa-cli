@@ -28,11 +28,13 @@ pub trait EnemiesBreakpointExt {
     ///     Enemy {
     ///         name: "goblin".to_owned(),
     ///         hp: NonZeroUsize::new(30).unwrap(),
+    ///         atk: 10,
     ///         def: 1,
     ///     },
     ///     Enemy {
     ///         name: "wolf".to_owned(),
     ///         hp: NonZeroUsize::new(25).unwrap(),
+    ///         atk: 12,
     ///         def: 3,
     ///     }
     /// ];
@@ -84,6 +86,7 @@ impl Enemy {
     /// let enemy = Enemy {
     ///     name: "goblin".to_owned(),
     ///     hp: NonZeroUsize::new(30).unwrap(),
+    ///     atk: 10,
     ///     def: 1,
     /// };
     ///
@@ -147,6 +150,7 @@ mod tests {
         let enemy = Enemy {
             name: "slime".to_string(),
             hp: NonZeroUsize::new(10).unwrap(),
+            atk: 10,
             def: 5,
         };
         let options = Options::default();
@@ -159,6 +163,7 @@ mod tests {
         let enemy = Enemy {
             name: "slime".to_string(),
             hp: NonZeroUsize::new(10).unwrap(),
+            atk: 10,
             def: 5,
         };
         let options = Options::new(Some(8), Some(12));
@@ -171,6 +176,7 @@ mod tests {
         let enemy = Enemy {
             name: "edge".to_string(),
             hp: NonZeroUsize::new(8).unwrap(),
+            atk: 10,
             def: 3,
         };
         let options = Options::new(Some(7), None);

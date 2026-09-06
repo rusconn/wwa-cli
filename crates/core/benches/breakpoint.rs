@@ -10,6 +10,7 @@ fn bench_enemies_breakpoints(c: &mut Criterion) {
         enemies.push(Enemy {
             name: format!("enemy_{i}"),
             hp: NonZeroUsize::new(100 + i % 10).unwrap(),
+            atk: i % 20,
             def: i % 20,
         });
     }

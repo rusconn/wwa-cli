@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
 
-use crate::BreakpointsArgs;
+use crate::{AnalyzeArgs, BreakpointsArgs};
 
 #[derive(Debug, Parser)]
 #[command(version, about, long_about = None)]
@@ -11,6 +11,9 @@ pub struct Args {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
+    /// Analyze damage change for each enemy
+    Analyze(AnalyzeArgs),
+
     /// List breakpoint atks
     Breakpoints(BreakpointsArgs),
 }

@@ -39,6 +39,7 @@ mod tests {
         Enemy {
             name: "goblin".to_string(),
             hp: NonZeroUsize::new(10).unwrap(),
+            atk: 10,
             def: 5,
         }
     }
@@ -49,6 +50,7 @@ mod tests {
         Enemy {
             name: "slime".to_string(),
             hp: NonZeroUsize::new(5).unwrap(),
+            atk: 10,
             def: 2,
         }
     }

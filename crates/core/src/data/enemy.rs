@@ -5,5 +5,6 @@ use std::num::NonZeroUsize;
 pub struct Enemy {
     pub name: String,
     pub hp: NonZeroUsize,
+    pub atk: usize,
     pub def: usize,
 }
