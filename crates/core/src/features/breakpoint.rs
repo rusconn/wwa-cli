@@ -1,12 +1,20 @@
-mod options;
-
 use std::collections::BTreeMap;
 
 use rustc_hash::FxHashMap;
 
 use crate::Enemy;
 
-pub use options::Options;
+#[derive(Debug, Default)]
+pub struct Options {
+    min: Option<usize>,
+    max: Option<usize>,
+}
+
+impl Options {
+    pub fn new(min: Option<usize>, max: Option<usize>) -> Self {
+        Self { min, max }
+    }
+}
 
 pub type Breakpoint = usize;
 
@@ -145,46 +153,32 @@ mod tests {
 
     use super::*;
 
-    #[test]
-    fn test_breakpoints_basic() {
-        let enemy = Enemy {
-            name: "slime".to_string(),
-            hp: NonZeroUsize::new(10).unwrap(),
-            atk: 10,
-            def: 5,
-        };
-        let options = Options::default();
-        let bs = enemy.breakpoints(&options);
-        assert_eq!(bs, vec![6, 7, 8, 9, 10, 15]);
+    fn make_enemy(hp: usize, atk: usize, def: usize) -> Enemy {
+        Enemy {
+            name: "test".to_string(),
+            hp: NonZeroUsize::new(hp).unwrap(),
+            atk,
+            def,
+        }
     }
 
     #[test]
-    fn test_breakpoints_with_options() {
-        let enemy = Enemy {
-            name: "slime".to_string(),
-            hp: NonZeroUsize::new(10).unwrap(),
-            atk: 10,
-            def: 5,
-        };
-        let options = Options::new(Some(8), Some(12));
-        let bs = enemy.breakpoints(&options);
-        assert_eq!(bs, vec![8, 9, 10]);
+    fn test_breakpoints_without_options() {
+        let enemy = make_enemy(10, 10, 5);
+        let options = Options::default();
+        let breakpoints = enemy.breakpoints(&options);
+        assert_eq!(breakpoints, vec![6, 7, 8, 9, 10, 15]);
     }
 
     #[test]
     fn test_breakpoints_edge() {
-        let enemy = Enemy {
-            name: "edge".to_string(),
-            hp: NonZeroUsize::new(8).unwrap(),
-            atk: 10,
-            def: 3,
-        };
+        let enemy = make_enemy(8, 10, 3);
         let options = Options::new(Some(7), None);
-        let bs = enemy.breakpoints(&options);
-        assert_eq!(bs, vec![7, 11]);
+        let breakpoints = enemy.breakpoints(&options);
+        assert_eq!(breakpoints, vec![7, 11]);
 
         let options = Options::new(Some(8), None);
-        let bs = enemy.breakpoints(&options);
-        assert_eq!(bs, vec![11]);
+        let breakpoints = enemy.breakpoints(&options);
+        assert_eq!(breakpoints, vec![11]);
     }
 }
