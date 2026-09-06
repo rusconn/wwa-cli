@@ -15,9 +15,13 @@ pub struct Args {
     #[arg(long)]
     pub(super) max: Option<usize>,
 
-    /// Output format
-    #[arg(long, value_enum, default_value_t)]
-    pub(super) format: Format,
+    /// Output format (implies --batch)
+    #[arg(long, value_enum)]
+    pub(super) format: Option<Format>,
+
+    /// Force batch (non-interactive) mode
+    #[arg(long)]
+    pub(super) batch: bool,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Default, ValueEnum)]

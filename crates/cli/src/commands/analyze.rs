@@ -1,31 +1,27 @@
 mod args;
+mod batch;
+mod tui;
 mod writers;
 
-use std::{fs, io};
+use anyhow::Result;
 
-use anyhow::{Context, Result};
-
-use wwa::{Enemy, Player};
+use super::shared::dispatch::want_interactive;
 
 pub(crate) use args::Args;
 
 pub fn analyze(args: Args) -> Result<()> {
-    let content = fs::read_to_string(&args.enemies_json5_path)
-        .with_context(|| format!("failed to read {}", args.enemies_json5_path.display()))?;
-
-    let enemies = json5::from_str::<Vec<Enemy>>(&content)
-        .with_context(|| format!("failed to parse {}", args.enemies_json5_path.display()))?;
-
-    let player = Player::new(args.atk, args.def);
-
-    let analyses = enemies
-        .iter()
-        .map(|enemy| player.analyze(enemy))
-        .collect::<Vec<_>>();
-
-    let stdout = io::stdout().lock();
-    let mut stdout = io::BufWriter::new(stdout);
-    args.format
-        .writeln(&mut stdout, &analyses, &enemies)
-        .context("failed to write output")
+    if want_interactive(args.batch, args.format.is_some())? {
+        tui::run(tui::Config::new(
+            args.enemies_json5_path,
+            args.atk,
+            args.def,
+        ))
+    } else {
+        batch::run(batch::Config::new(
+            args.enemies_json5_path,
+            args.atk,
+            args.def,
+            args.format.unwrap_or_default(),
+        ))
+    }
 }

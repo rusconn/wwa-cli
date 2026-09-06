@@ -8,7 +8,7 @@ A WWA(World Wide Adventure) helper.
 cargo install --git https://github.com/rusconn/wwa-cli.git
 ```
 
-## Example
+## Batch Example
 
 ./enemies.json5:
 ```json5
@@ -22,7 +22,7 @@ cargo install --git https://github.com/rusconn/wwa-cli.git
 ### Analyze
 
 ```sh
-> wwa analyze ./enemies.json5 --atk 11 --def 5
+> wwa analyze ./enemies.json5 --atk 11 --def 5 --batch
 goblin
   †+5 ⇒ -5 # † means atk
   ⛨+1 ⇒ -2 # ⛨ means def
@@ -36,7 +36,7 @@ golem
 ### Breakpoints
 
 ```sh
-> wwa breakpoints ./enemies.json5 --min 11 --max 20
+> wwa breakpoints ./enemies.json5 --min 11 --max 20 --batch
 11: goblin
 12: wolf
 16: goblin,wolf
