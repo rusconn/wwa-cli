@@ -22,11 +22,7 @@ cargo install --git https://github.com/rusconn/wwa-cli.git
 ### Analyze
 
 ```sh
-wwa analyze ./enemies.json5 --atk 11 --def 5
-```
-
-output:
-```sh
+> wwa analyze ./enemies.json5 --atk 11 --def 5
 goblin
   †+5 ⇒ -5 # † means atk
   ⛨+1 ⇒ -2 # ⛨ means def
@@ -40,11 +36,7 @@ golem
 ### Breakpoints
 
 ```sh
-wwa breakpoints ./enemies.json5 --min 11 --max 20
-```
-
-output:
-```sh
+> wwa breakpoints ./enemies.json5 --min 11 --max 20
 11: goblin
 12: wolf
 16: goblin,wolf
