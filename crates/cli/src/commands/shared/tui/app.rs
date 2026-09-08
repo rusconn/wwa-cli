@@ -45,6 +45,7 @@ impl<P: ParamModel, O: OutputView> TuiApp for App<P, O> {
             Focus::Output => vec![Span::raw("[↑↓] move")],
         };
         hints.push(Span::raw("[Tab] focus next"));
+        hints.push(Span::raw("[Shift+Tab] focus prev"));
         hints.push(Span::raw("[r] reload"));
         hints.push(Span::raw("[q] quit"));
 
@@ -55,7 +56,8 @@ impl<P: ParamModel, O: OutputView> TuiApp for App<P, O> {
         match key.code {
             KeyCode::Char('q') => return true,
             KeyCode::Char('r') => self.reload(),
-            KeyCode::Tab => self.next_focus(),
+            KeyCode::Tab => self.move_focus(1),
+            KeyCode::BackTab => self.move_focus(-1),
             KeyCode::Esc => self.focus = Focus::Params,
             _ => match self.focus {
                 Focus::Params => {
@@ -106,8 +108,8 @@ impl<P: ParamModel, O: OutputView> App<P, O> {
         Ok(())
     }
 
-    fn next_focus(&mut self) {
-        self.focus = self.focus.cycle(1);
+    fn move_focus(&mut self, delta: isize) {
+        self.focus = self.focus.cycle(delta);
         if self.focus == Focus::Output {
             self.output.on_focus();
         }
@@ -256,6 +258,29 @@ mod tests {
 
         app.handle_key(key(KeyCode::Tab));
         assert_eq!(app.focus(), Focus::Params);
+    }
+
+    #[test]
+    fn shift_tab_backtracks_focus() {
+        let mut app = app();
+        assert_eq!(app.focus(), Focus::Params);
+
+        app.handle_key(key(KeyCode::BackTab));
+        assert_eq!(app.focus(), Focus::Output);
+
+        app.handle_key(key(KeyCode::BackTab));
+        assert_eq!(app.focus(), Focus::Params);
+    }
+
+    #[test]
+    fn shift_tab_triggers_on_focus() {
+        let mut app = app();
+        app.output_mut().selected = Some(5);
+
+        app.handle_key(key(KeyCode::BackTab));
+
+        assert_eq!(app.focus(), Focus::Output);
+        assert_eq!(app.output().selected, Some(0));
     }
 
     #[test]
