@@ -56,6 +56,7 @@ impl<P: ParamModel, O: OutputView> TuiApp for App<P, O> {
             KeyCode::Char('q') => return true,
             KeyCode::Char('r') => self.reload(),
             KeyCode::Tab => self.next_focus(),
+            KeyCode::Esc => self.focus = Focus::Params,
             _ => match self.focus {
                 Focus::Params => {
                     if self.params.handle_key(key) {
@@ -266,6 +267,23 @@ mod tests {
 
         assert_eq!(app.focus(), Focus::Output);
         assert_eq!(app.output().selected, Some(0));
+    }
+
+    #[test]
+    fn esc_from_output_returns_to_params() {
+        let mut app = app();
+        app.set_focus(Focus::Output);
+
+        assert!(!app.handle_key(key(KeyCode::Esc)));
+        assert_eq!(app.focus(), Focus::Params);
+    }
+
+    #[test]
+    fn esc_from_params_does_nothing() {
+        let mut app = app();
+
+        assert!(!app.handle_key(key(KeyCode::Esc)));
+        assert_eq!(app.focus(), Focus::Params);
     }
 
     #[test]
