@@ -8,6 +8,12 @@ A WWA(World Wide Adventure) helper.
 cargo install --git https://github.com/rusconn/wwa-cli.git
 ```
 
+## Shell Completion
+
+`wwa completion <SHELL>` prints a completion script for the given shell
+(bash, elvish, fish, powershell, zsh). Install the output into your shell's
+completion directory to activate.
+
 ## Batch Example
 
 ./enemies.json5:

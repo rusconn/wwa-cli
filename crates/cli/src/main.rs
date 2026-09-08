@@ -3,7 +3,7 @@ use std::process;
 use anyhow::Result;
 use clap::Parser;
 
-use wwa_cli::{Args, Commands, analyze, breakpoints};
+use wwa_cli::{Args, Commands, analyze, breakpoints, completion};
 
 fn main() {
     if let Err(e) = run(Args::parse()) {
@@ -16,5 +16,6 @@ fn run(args: Args) -> Result<()> {
     match args.command {
         Commands::Analyze(args) => analyze(args),
         Commands::Breakpoints(args) => breakpoints(args),
+        Commands::Completion(args) => completion(args),
     }
 }
