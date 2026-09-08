@@ -6,7 +6,7 @@ use anyhow::Result;
 
 use wwa::{BreakpointOptions, EnemiesBreakpointExt, Enemy};
 
-use crate::commands::shared::{app::App, output_list::OutputList, tui};
+use crate::commands::shared::tui::{self, app::App, output_list::OutputList};
 
 use params::{Params, TogglableParam};
 
@@ -69,8 +69,7 @@ mod tests {
 
     use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
-    use crate::commands::shared::focus::Focus;
-    use crate::commands::shared::tui::TuiApp;
+    use crate::commands::shared::tui::{TuiApp, focus::Focus};
 
     fn app() -> App<Params, OutputList> {
         let mut app = App::new(

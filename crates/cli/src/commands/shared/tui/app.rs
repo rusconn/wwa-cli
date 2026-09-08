@@ -11,8 +11,8 @@ use ratatui::{
 use wwa::Enemy;
 
 use super::{
-    enemies::load_enemies, focus::Focus, output_view::OutputView, params::ParamModel,
-    status_bar::StatusBar, tui::TuiApp,
+    super::enemies::load_enemies, TuiApp, focus::Focus, output_view::OutputView,
+    params::ParamModel, status_bar::StatusBar,
 };
 
 pub(crate) struct App<P: ParamModel, O: OutputView> {
@@ -170,7 +170,7 @@ mod tests {
 
     use crossterm::event::{KeyCode, KeyModifiers};
 
-    use super::super::tui::TuiApp;
+    use super::super::super::tui::TuiApp;
 
     struct DummyParams {
         value: usize,

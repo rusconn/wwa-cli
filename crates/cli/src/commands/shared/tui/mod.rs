@@ -1,3 +1,10 @@
+pub(crate) mod app;
+pub(crate) mod focus;
+pub(crate) mod output_list;
+pub(crate) mod output_view;
+pub(crate) mod params;
+pub(crate) mod status_bar;
+
 use anyhow::Result;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use ratatui::{DefaultTerminal, Frame, layout::Rect};

@@ -7,7 +7,7 @@ use ratatui::{
     widgets::{Block, Paragraph},
 };
 
-use crate::commands::shared::params::ParamModel;
+use crate::commands::shared::tui::params::ParamModel;
 
 #[derive(Clone, Copy)]
 pub(super) struct TogglableParam {

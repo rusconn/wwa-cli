@@ -7,7 +7,7 @@ use ratatui::{
     widgets::{Block, Paragraph},
 };
 
-use crate::commands::shared::params::ParamModel;
+use crate::commands::shared::tui::params::ParamModel;
 
 pub(super) struct Params {
     pub(super) atk: usize,
