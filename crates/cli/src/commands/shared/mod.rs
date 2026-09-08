@@ -1,5 +1,9 @@
+pub(super) mod app;
 pub(super) mod dispatch;
 pub(super) mod enemies;
+pub(super) mod focus;
 pub(super) mod output_list;
+pub(super) mod output_view;
+pub(super) mod params;
 pub(super) mod status_bar;
 pub(super) mod tui;

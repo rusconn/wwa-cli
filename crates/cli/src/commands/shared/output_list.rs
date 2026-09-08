@@ -1,5 +1,6 @@
 use std::mem;
 
+use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{
     Frame,
     layout::Rect,
@@ -8,9 +9,37 @@ use ratatui::{
     widgets::{Block, List, ListItem, ListState},
 };
 
+use super::output_view::OutputView;
+
 pub(crate) struct OutputList {
     output: Result<Vec<String>, String>,
     state: ListState,
+}
+
+impl OutputView for OutputList {
+    fn new(output: Result<Vec<String>, String>) -> Self {
+        OutputList::new(output)
+    }
+
+    fn draw(&mut self, frame: &mut Frame, area: Rect, focused: bool) {
+        OutputList::draw(self, frame, area, focused);
+    }
+
+    fn handle_key(&mut self, key: KeyEvent) {
+        match key.code {
+            KeyCode::Up => self.move_cursor(-1),
+            KeyCode::Down => self.move_cursor(1),
+            _ => {}
+        }
+    }
+
+    fn on_focus(&mut self) {
+        OutputList::select_first(self);
+    }
+
+    fn set_output(&mut self, output: Result<Vec<String>, String>) {
+        OutputList::set_output(self, output);
+    }
 }
 
 impl OutputList {
