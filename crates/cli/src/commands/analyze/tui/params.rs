@@ -21,20 +21,20 @@ impl ParamModel for Params {
     }
 
     fn handle_key(&mut self, key: KeyEvent) -> bool {
-        match key.code {
-            KeyCode::Up => {
+        match (key.code, key.modifiers == KeyModifiers::NONE) {
+            (KeyCode::Char('k'), true) | (KeyCode::Up, _) => {
                 self.adjust(Self::adjustment_step(key.modifiers));
                 true
             }
-            KeyCode::Down => {
+            (KeyCode::Char('j'), true) | (KeyCode::Down, _) => {
                 self.adjust(-Self::adjustment_step(key.modifiers));
                 true
             }
-            KeyCode::Left => {
+            (KeyCode::Char('h'), true) | (KeyCode::Left, _) => {
                 self.cycle(-1);
                 false
             }
-            KeyCode::Right => {
+            (KeyCode::Char('l'), true) | (KeyCode::Right, _) => {
                 self.cycle(1);
                 false
             }
@@ -120,5 +120,90 @@ impl Params {
     fn cycle(&mut self, delta: isize) {
         let n = Self::PARAM_COUNT as isize;
         self.param_index = ((self.param_index as isize + delta).rem_euclid(n)) as usize;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn key(code: KeyCode) -> KeyEvent {
+        KeyEvent::new(code, KeyModifiers::NONE)
+    }
+
+    fn key_mod(code: KeyCode, modifiers: KeyModifiers) -> KeyEvent {
+        KeyEvent::new(code, modifiers)
+    }
+
+    #[test]
+    fn k_increases_value() {
+        let mut p = Params {
+            atk: 5,
+            def: 5,
+            param_index: 0,
+        };
+        assert!(p.handle_key(key(KeyCode::Char('k'))));
+        assert_eq!(p.atk, 6);
+    }
+
+    #[test]
+    fn j_decreases_value() {
+        let mut p = Params {
+            atk: 5,
+            def: 5,
+            param_index: 0,
+        };
+        assert!(p.handle_key(key(KeyCode::Char('j'))));
+        assert_eq!(p.atk, 4);
+    }
+
+    #[test]
+    fn h_cycles_selection_left() {
+        let mut p = Params {
+            atk: 5,
+            def: 5,
+            param_index: 0,
+        };
+        assert!(!p.handle_key(key(KeyCode::Char('h'))));
+        assert_eq!(p.param_index, 1);
+    }
+
+    #[test]
+    fn l_cycles_selection_right() {
+        let mut p = Params {
+            atk: 5,
+            def: 5,
+            param_index: 0,
+        };
+        assert!(!p.handle_key(key(KeyCode::Char('l'))));
+        assert_eq!(p.param_index, 1);
+    }
+
+    #[test]
+    fn hjkl_with_modifiers_is_ignored() {
+        for (code, mods) in [
+            (KeyCode::Char('k'), KeyModifiers::SHIFT),
+            (KeyCode::Char('j'), KeyModifiers::ALT),
+            (KeyCode::Char('h'), KeyModifiers::SHIFT),
+            (KeyCode::Char('l'), KeyModifiers::ALT),
+        ] {
+            let mut p = Params {
+                atk: 5,
+                def: 5,
+                param_index: 0,
+            };
+            assert!(!p.handle_key(key_mod(code, mods)));
+        }
+    }
+
+    #[test]
+    fn arrow_keys_accept_modifiers() {
+        let mut p = Params {
+            atk: 5,
+            def: 5,
+            param_index: 0,
+        };
+        assert!(p.handle_key(key_mod(KeyCode::Up, KeyModifiers::SHIFT)));
+        assert_eq!(p.atk, 15);
     }
 }

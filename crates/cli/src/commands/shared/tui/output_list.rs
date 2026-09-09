@@ -1,6 +1,6 @@
 use std::mem;
 
-use crossterm::event::{KeyCode, KeyEvent};
+use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use ratatui::{
     Frame,
     layout::Rect,
@@ -26,9 +26,9 @@ impl OutputView for OutputList {
     }
 
     fn handle_key(&mut self, key: KeyEvent) {
-        match key.code {
-            KeyCode::Up => self.move_cursor(-1),
-            KeyCode::Down => self.move_cursor(1),
+        match (key.code, key.modifiers == KeyModifiers::NONE) {
+            (KeyCode::Char('k'), true) | (KeyCode::Up, _) => self.move_cursor(-1),
+            (KeyCode::Char('j'), true) | (KeyCode::Down, _) => self.move_cursor(1),
             _ => {}
         }
     }
@@ -111,6 +111,8 @@ impl OutputList {
 mod tests {
     use super::*;
 
+    use crossterm::event::KeyModifiers;
+
     fn list() -> OutputList {
         OutputList::new(Ok(vec!["a".to_string(), "b".to_string(), "c".to_string()]))
     }
@@ -157,6 +159,29 @@ mod tests {
     fn move_cursor_does_nothing_when_empty() {
         let mut list = OutputList::new(Ok(Vec::new()));
         list.move_cursor(1);
+        assert_eq!(list.selected(), None);
+    }
+
+    #[test]
+    fn j_moves_cursor_down() {
+        let mut list = list();
+        list.handle_key(KeyEvent::new(KeyCode::Char('j'), KeyModifiers::NONE));
+        assert_eq!(list.selected(), Some(1));
+    }
+
+    #[test]
+    fn k_moves_cursor_up() {
+        let mut list = list();
+        list.move_cursor(2);
+        list.handle_key(KeyEvent::new(KeyCode::Char('k'), KeyModifiers::NONE));
+        assert_eq!(list.selected(), Some(1));
+    }
+
+    #[test]
+    fn jk_with_modifiers_is_ignored() {
+        let mut list = list();
+        list.handle_key(KeyEvent::new(KeyCode::Char('j'), KeyModifiers::SHIFT));
+        list.handle_key(KeyEvent::new(KeyCode::Char('k'), KeyModifiers::ALT));
         assert_eq!(list.selected(), None);
     }
 }
