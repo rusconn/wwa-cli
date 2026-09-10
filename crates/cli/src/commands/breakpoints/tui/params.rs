@@ -56,7 +56,6 @@ impl ParamModel for Params {
         vec![
             Span::raw("[↑↓] ±1"),
             Span::raw("[Shift+↑↓] ±10"),
-            Span::raw("[Alt+↑↓] ±100"),
             Span::raw("[←→] move"),
             Span::raw("[t] toggle"),
         ]
@@ -121,9 +120,7 @@ impl Params {
     }
 
     fn adjustment_step(modifiers: KeyModifiers) -> isize {
-        if modifiers.contains(KeyModifiers::ALT) {
-            100
-        } else if modifiers.contains(KeyModifiers::SHIFT) {
+        if modifiers.contains(KeyModifiers::SHIFT) {
             10
         } else {
             1
@@ -212,9 +209,7 @@ mod tests {
     fn hjkl_with_modifiers_is_ignored() {
         for (code, mods) in [
             (KeyCode::Char('k'), KeyModifiers::SHIFT),
-            (KeyCode::Char('j'), KeyModifiers::ALT),
             (KeyCode::Char('h'), KeyModifiers::SHIFT),
-            (KeyCode::Char('l'), KeyModifiers::ALT),
         ] {
             let mut p = Params {
                 min: param(5),

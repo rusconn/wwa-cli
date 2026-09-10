@@ -181,7 +181,7 @@ mod tests {
     fn jk_with_modifiers_is_ignored() {
         let mut list = list();
         list.handle_key(KeyEvent::new(KeyCode::Char('j'), KeyModifiers::SHIFT));
-        list.handle_key(KeyEvent::new(KeyCode::Char('k'), KeyModifiers::ALT));
+        list.handle_key(KeyEvent::new(KeyCode::Char('k'), KeyModifiers::CONTROL));
         assert_eq!(list.selected(), None);
     }
 }

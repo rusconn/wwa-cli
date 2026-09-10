@@ -116,16 +116,10 @@ mod tests {
     }
 
     #[test]
-    fn shift_alt_adjusts_by_step() {
+    fn shift_adjusts_by_step() {
         let mut app = app();
 
         app.handle_key(KeyEvent::new(KeyCode::Up, KeyModifiers::SHIFT));
-        assert_eq!(app.params().atk, 20);
-
-        app.handle_key(KeyEvent::new(KeyCode::Up, KeyModifiers::ALT));
-        assert_eq!(app.params().atk, 120);
-
-        app.handle_key(KeyEvent::new(KeyCode::Down, KeyModifiers::ALT));
         assert_eq!(app.params().atk, 20);
     }
 
