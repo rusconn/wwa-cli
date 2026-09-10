@@ -1,6 +1,6 @@
 use std::mem;
 
-use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{
     Frame,
     layout::Rect,
@@ -26,9 +26,13 @@ impl OutputView for OutputList {
     }
 
     fn handle_key(&mut self, key: KeyEvent) {
-        match (key.code, key.modifiers == KeyModifiers::NONE) {
-            (KeyCode::Char('k'), true) | (KeyCode::Up, _) => self.move_cursor(-1),
-            (KeyCode::Char('j'), true) | (KeyCode::Down, _) => self.move_cursor(1),
+        match key.code {
+            KeyCode::Up | KeyCode::Char('k') => {
+                self.move_cursor(-1);
+            }
+            KeyCode::Down | KeyCode::Char('j') => {
+                self.move_cursor(1);
+            }
             _ => {}
         }
     }
@@ -178,10 +182,10 @@ mod tests {
     }
 
     #[test]
-    fn jk_with_modifiers_is_ignored() {
+    fn uppercase_jk_are_ignored() {
         let mut list = list();
-        list.handle_key(KeyEvent::new(KeyCode::Char('j'), KeyModifiers::SHIFT));
-        list.handle_key(KeyEvent::new(KeyCode::Char('k'), KeyModifiers::CONTROL));
+        list.handle_key(KeyEvent::new(KeyCode::Char('J'), KeyModifiers::NONE));
+        list.handle_key(KeyEvent::new(KeyCode::Char('K'), KeyModifiers::NONE));
         assert_eq!(list.selected(), None);
     }
 }

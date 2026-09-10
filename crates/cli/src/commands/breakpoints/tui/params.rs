@@ -27,24 +27,24 @@ impl ParamModel for Params {
     }
 
     fn handle_key(&mut self, key: KeyEvent) -> bool {
-        match (key.code, key.modifiers == KeyModifiers::NONE) {
-            (KeyCode::Char('t'), _) => {
+        match key.code {
+            KeyCode::Char('t') => {
                 self.toggle_selected();
                 true
             }
-            (KeyCode::Char('k'), true) | (KeyCode::Up, _) => {
-                self.adjust(Self::adjustment_step(key.modifiers));
+            KeyCode::Up | KeyCode::Char('k') | KeyCode::Char('K') => {
+                self.adjust(Self::adjustment_step(&key));
                 true
             }
-            (KeyCode::Char('j'), true) | (KeyCode::Down, _) => {
-                self.adjust(-Self::adjustment_step(key.modifiers));
+            KeyCode::Down | KeyCode::Char('j') | KeyCode::Char('J') => {
+                self.adjust(-Self::adjustment_step(&key));
                 true
             }
-            (KeyCode::Char('h'), true) | (KeyCode::Left, _) => {
+            KeyCode::Left | KeyCode::Char('h') => {
                 self.cycle(-1);
                 false
             }
-            (KeyCode::Char('l'), true) | (KeyCode::Right, _) => {
+            KeyCode::Right | KeyCode::Char('l') => {
                 self.cycle(1);
                 false
             }
@@ -119,8 +119,11 @@ impl Params {
         param.value = param.value.saturating_add_signed(delta);
     }
 
-    fn adjustment_step(modifiers: KeyModifiers) -> isize {
-        if modifiers.contains(KeyModifiers::SHIFT) {
+    fn adjustment_step(key: &KeyEvent) -> isize {
+        if match key.code {
+            KeyCode::Char(c) => c.is_uppercase(),
+            _ => key.modifiers.contains(KeyModifiers::SHIFT),
+        } {
             10
         } else {
             1
@@ -206,18 +209,51 @@ mod tests {
     }
 
     #[test]
-    fn hjkl_with_modifiers_is_ignored() {
-        for (code, mods) in [
-            (KeyCode::Char('k'), KeyModifiers::SHIFT),
-            (KeyCode::Char('h'), KeyModifiers::SHIFT),
-        ] {
-            let mut p = Params {
-                min: param(5),
-                max: param(5),
-                param_index: 0,
-            };
-            assert!(!p.handle_key(key_mod(code, mods)));
-        }
+    fn k_increases_by_ten() {
+        let mut p = Params {
+            min: param(5),
+            max: param(5),
+            param_index: 0,
+        };
+        assert!(p.handle_key(key(KeyCode::Char('K'))));
+        assert_eq!(p.min.value, 15);
+    }
+
+    #[test]
+    fn j_decreases_by_ten() {
+        let mut p = Params {
+            min: param(5),
+            max: param(5),
+            param_index: 0,
+        };
+        assert!(p.handle_key(key(KeyCode::Char('J'))));
+        assert_eq!(p.min.value, 0);
+    }
+
+    #[test]
+    fn char_case_decides_step_not_modifiers() {
+        let mut p = Params {
+            min: param(5),
+            max: param(5),
+            param_index: 0,
+        };
+        assert!(p.handle_key(key_mod(KeyCode::Char('k'), KeyModifiers::SHIFT)));
+        assert_eq!(p.min.value, 6);
+        assert!(p.handle_key(key_mod(KeyCode::Char('K'), KeyModifiers::CONTROL)));
+        assert_eq!(p.min.value, 16);
+    }
+
+    #[test]
+    fn uppercase_h_l_are_ignored() {
+        let mut p = Params {
+            min: param(5),
+            max: param(5),
+            param_index: 0,
+        };
+        assert!(!p.handle_key(key(KeyCode::Char('H'))));
+        assert_eq!(p.param_index, 0);
+        assert!(!p.handle_key(key(KeyCode::Char('L'))));
+        assert_eq!(p.param_index, 0);
     }
 
     #[test]
@@ -229,5 +265,16 @@ mod tests {
         };
         assert!(p.handle_key(key_mod(KeyCode::Up, KeyModifiers::SHIFT)));
         assert_eq!(p.min.value, 15);
+    }
+
+    #[test]
+    fn arrow_keys_plain_adjust_by_one() {
+        let mut p = Params {
+            min: param(5),
+            max: param(5),
+            param_index: 0,
+        };
+        assert!(p.handle_key(key(KeyCode::Up)));
+        assert_eq!(p.min.value, 6);
     }
 }
