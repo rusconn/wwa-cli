@@ -1,14 +1,16 @@
-use std::process;
+use std::process::ExitCode;
 
 use anyhow::Result;
 use clap::Parser;
 
 use wwa_cli::{Args, Commands, analyze, breakpoints, completion};
 
-fn main() {
+fn main() -> ExitCode {
     if let Err(e) = run(Args::parse()) {
         eprintln!("{e:#}");
-        process::exit(1);
+        ExitCode::FAILURE
+    } else {
+        ExitCode::SUCCESS
     }
 }
 
