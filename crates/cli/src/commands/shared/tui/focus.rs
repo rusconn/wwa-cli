@@ -7,8 +7,8 @@ pub(crate) enum Focus {
 }
 
 impl Focus {
-    pub(crate) fn cycle(&self, delta: isize) -> Self {
-        let n = Self::VARIANTS.len() as isize;
-        Self::VARIANTS[(*self as isize + delta).rem_euclid(n) as usize]
+    pub(crate) fn cycle(self, delta: isize) -> Self {
+        let n = Self::VARIANTS.len().cast_signed();
+        Self::VARIANTS[(self as isize + delta).rem_euclid(n) as usize]
     }
 }

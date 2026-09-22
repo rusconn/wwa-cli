@@ -82,12 +82,14 @@ impl OutputList {
     }
 
     pub(crate) fn move_cursor(&mut self, delta: isize) {
-        let count = self.output.as_ref().map(Vec::len).unwrap_or(0);
+        let count = self.output.as_ref().map_or(0, Vec::len);
         if count == 0 {
             return;
         }
-        let pos = self.state.selected().unwrap_or(0) as isize;
-        let pos = (pos + delta).clamp(0, count as isize - 1) as usize;
+        let pos = self.state.selected().unwrap_or(0).cast_signed();
+        let pos = (pos + delta)
+            .clamp(0, count.cast_signed() - 1)
+            .cast_unsigned();
         self.state.select(Some(pos));
     }
 

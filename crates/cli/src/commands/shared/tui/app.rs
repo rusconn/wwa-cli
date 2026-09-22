@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::Path;
 
 use anyhow::Result;
 use crossterm::event::{KeyCode, KeyEvent};
@@ -15,8 +15,8 @@ use super::{
     params::ParamModel, status_bar::StatusBar,
 };
 
-pub(crate) struct App<P: ParamModel, O: OutputView> {
-    enemies_json5: PathBuf,
+pub(crate) struct App<'a, P: ParamModel, O: OutputView> {
+    enemies_json5: &'a Path,
     enemies: Vec<Enemy>,
     params: P,
     output: O,
@@ -26,7 +26,7 @@ pub(crate) struct App<P: ParamModel, O: OutputView> {
     title: String,
 }
 
-impl<P: ParamModel, O: OutputView> TuiApp for App<P, O> {
+impl<P: ParamModel, O: OutputView> TuiApp for App<'_, P, O> {
     fn draw(&mut self, frame: &mut Frame, area: Rect) {
         let chunks = Layout::vertical([
             Constraint::Length(4),
@@ -72,14 +72,14 @@ impl<P: ParamModel, O: OutputView> TuiApp for App<P, O> {
     }
 }
 
-impl<P: ParamModel, O: OutputView> App<P, O> {
+impl<'a, P: ParamModel, O: OutputView> App<'a, P, O> {
     pub(crate) fn init(
         title_prefix: &str,
-        enemies_json5: PathBuf,
+        enemies_json5: &'a Path,
         params: P,
         compute_output: fn(&P, &[Enemy]) -> Result<Vec<String>, String>,
     ) -> Result<Self> {
-        let enemies = load_enemies(&enemies_json5)?;
+        let enemies = load_enemies(enemies_json5)?;
         let output = O::new(compute_output(&params, &enemies));
         Ok(Self {
             title: format!(" {title_prefix}: {} ", enemies_json5.display()),
@@ -104,7 +104,7 @@ impl<P: ParamModel, O: OutputView> App<P, O> {
     }
 
     fn load(&mut self) -> Result<()> {
-        self.enemies = load_enemies(&self.enemies_json5)?;
+        self.enemies = load_enemies(self.enemies_json5)?;
         Ok(())
     }
 
@@ -122,9 +122,9 @@ impl<P: ParamModel, O: OutputView> App<P, O> {
 }
 
 #[cfg(test)]
-impl<P: ParamModel, O: OutputView> App<P, O> {
+impl<'a, P: ParamModel, O: OutputView> App<'a, P, O> {
     pub(crate) fn new(
-        enemies_json5: PathBuf,
+        enemies_json5: &'a Path,
         enemies: Vec<Enemy>,
         params: P,
         output: O,
@@ -219,9 +219,9 @@ mod tests {
         KeyEvent::new(code, KeyModifiers::NONE)
     }
 
-    fn app() -> App<DummyParams, DummyOutput> {
+    fn app<'a>() -> App<'a, DummyParams, DummyOutput> {
         App {
-            enemies_json5: PathBuf::new(),
+            enemies_json5: Path::new(""),
             enemies: Vec::new(),
             params: DummyParams { value: 0 },
             output: DummyOutput {

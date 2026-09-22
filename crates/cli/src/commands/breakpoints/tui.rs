@@ -26,10 +26,10 @@ impl Config {
     }
 }
 
-pub(super) fn run(config: Config) -> Result<()> {
+pub(super) fn run(config: &Config) -> Result<()> {
     let mut app: App<Params, OutputList> = App::init(
         "breakpoints",
-        config.enemies_json5,
+        &config.enemies_json5,
         Params {
             min: TogglableParam {
                 enabled: config.min.is_some(),
@@ -65,15 +65,17 @@ fn compute_output(params: &Params, enemies: &[Enemy]) -> Result<Vec<String>, Str
 
 #[cfg(test)]
 mod tests {
+    use std::path::Path;
+
     use super::*;
 
     use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
     use crate::commands::shared::tui::{TuiApp, focus::Focus};
 
-    fn app() -> App<Params, OutputList> {
+    fn app<'a>() -> App<'a, Params, OutputList> {
         let mut app = App::new(
-            PathBuf::new(),
+            Path::new(""),
             Vec::new(),
             Params {
                 min: TogglableParam {

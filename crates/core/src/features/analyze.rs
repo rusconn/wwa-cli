@@ -20,6 +20,7 @@ pub enum Analysis {
 }
 
 impl Player {
+    #[must_use]
     pub fn new(atk: usize, def: usize) -> Self {
         Self { atk, def }
     }
@@ -49,6 +50,7 @@ impl Player {
     ///     },
     /// );
     /// ```
+    #[must_use]
     pub fn analyze(&self, enemy: &Enemy) -> Analysis {
         let hp = enemy.hp.get();
         let dmg_dealt = self.atk.saturating_sub(enemy.def);

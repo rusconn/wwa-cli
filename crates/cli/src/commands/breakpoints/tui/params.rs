@@ -32,11 +32,11 @@ impl ParamModel for Params {
                 self.toggle_selected();
                 true
             }
-            KeyCode::Up | KeyCode::Char('k') | KeyCode::Char('K') => {
+            KeyCode::Up | KeyCode::Char('k' | 'K') => {
                 self.adjust(Self::adjustment_step(&key));
                 true
             }
-            KeyCode::Down | KeyCode::Char('j') | KeyCode::Char('J') => {
+            KeyCode::Down | KeyCode::Char('j' | 'J') => {
                 self.adjust(-Self::adjustment_step(&key));
                 true
             }
@@ -140,8 +140,8 @@ impl Params {
     const PARAM_COUNT: usize = 2;
 
     fn cycle(&mut self, delta: isize) {
-        let n = Self::PARAM_COUNT as isize;
-        self.param_index = ((self.param_index as isize + delta).rem_euclid(n)) as usize;
+        let n = Self::PARAM_COUNT.cast_signed();
+        self.param_index = ((self.param_index.cast_signed() + delta).rem_euclid(n)) as usize;
     }
 }
 

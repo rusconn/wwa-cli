@@ -26,7 +26,7 @@ impl Config {
     }
 }
 
-pub(super) fn run(config: Config) -> Result<()> {
+pub(super) fn run(config: &Config) -> Result<()> {
     let enemies = load_enemies(&config.enemies_json5)?;
 
     let player = Player::new(config.atk, config.def);

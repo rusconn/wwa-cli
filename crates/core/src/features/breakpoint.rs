@@ -11,6 +11,7 @@ pub struct Options {
 }
 
 impl Options {
+    #[must_use]
     pub fn new(min: Option<usize>, max: Option<usize>) -> Self {
         Self { min, max }
     }
@@ -108,6 +109,7 @@ impl Enemy {
     ///     vec![], // empty if min > max
     /// );
     /// ```
+    #[must_use]
     pub fn breakpoints(&self, options: &Options) -> Vec<Breakpoint> {
         let hp = self.hp.get();
         let def = self.def;
