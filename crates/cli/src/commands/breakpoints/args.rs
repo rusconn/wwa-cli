@@ -1,8 +1,8 @@
 use std::path::PathBuf;
 
-use clap::{Parser, ValueEnum};
+use clap::{Args as ClapArgs, ValueEnum};
 
-#[derive(Debug, Parser)]
+#[derive(Debug, ClapArgs)]
 pub struct Args {
     /// Path to enemies.json5
     pub(super) enemies_json5_path: PathBuf,
