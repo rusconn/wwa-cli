@@ -21,3 +21,6 @@ criterion = "0.8.2"
 name = "breakpoint"
 harness = false
 required-features = ["breakpoint"]
+
+[lints.clippy]
+pedantic = "warn"
