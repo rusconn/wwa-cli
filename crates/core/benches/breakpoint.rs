@@ -17,7 +17,7 @@ fn bench_enemies_breakpoints(c: &mut Criterion) {
     let options = BreakpointOptions::default();
 
     c.bench_function("enemies_breakpoints_100_enemies", |b| {
-        b.iter(|| enemies.breakpoints(&options))
+        b.iter(|| enemies.breakpoints(&options));
     });
 }
 

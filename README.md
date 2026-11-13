@@ -17,6 +17,7 @@ completion directory to activate.
 ## Batch Example
 
 ./enemies.json5:
+
 ```json5
 [
   { name: "goblin", hp: 30, atk: 10, def: 1 },
