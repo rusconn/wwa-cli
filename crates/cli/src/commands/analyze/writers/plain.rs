@@ -1,6 +1,7 @@
 use std::io::Write;
 
 use anyhow::Result;
+use itertools::Itertools;
 
 use wwa::{Analysis, Enemy};
 
@@ -9,41 +10,30 @@ pub(in super::super) fn write(
     analyses: &[Analysis],
     enemies: &[Enemy],
 ) -> Result<()> {
-    let mut iter = enemies
+    let blocks = enemies
         .iter()
         .zip(analyses)
-        .filter(|(_, analysis)| !matches!(analysis, Analysis::NoDamage));
+        .filter(|(_, analysis)| !matches!(analysis, Analysis::NoDamage))
+        .format_with("\n", |(enemy, analysis), f| match analysis {
+            Analysis::Blocked { atk_inc } => {
+                f(&format_args!("{}", enemy.name))?;
+                f(&format_args!("\n  †+{atk_inc} ⇒ ok"))
+            }
+            Analysis::Damage {
+                atk_inc,
+                atk_reduction,
+                def_reduction,
+            } => {
+                f(&format_args!("{}", enemy.name))?;
+                f(&format_args!("\n  †+{atk_inc} ⇒ -{atk_reduction}"))?;
+                f(&format_args!("\n  ⛨+1 ⇒ -{def_reduction}"))
+            }
+            Analysis::NoDamage => {
+                unreachable!("already filtered");
+            }
+        });
 
-    if let Some((enemy, analysis)) = iter.next() {
-        write_block(w, enemy, analysis)?;
-        for (enemy, analysis) in iter {
-            writeln!(w)?;
-            write_block(w, enemy, analysis)?;
-        }
-    }
-
-    Ok(())
-}
-
-fn write_block(w: &mut impl Write, enemy: &Enemy, analysis: &Analysis) -> Result<()> {
-    writeln!(w, "{}", enemy.name)?;
-
-    match analysis {
-        Analysis::Blocked { atk_inc } => {
-            write!(w, "  †+{atk_inc} ⇒ ok")?;
-        }
-        Analysis::Damage {
-            atk_inc,
-            atk_reduction,
-            def_reduction,
-        } => {
-            writeln!(w, "  †+{atk_inc} ⇒ -{atk_reduction}")?;
-            write!(w, "  ⛨+1 ⇒ -{def_reduction}")?;
-        }
-        Analysis::NoDamage => {
-            unreachable!("already filtered by caller");
-        }
-    }
+    write!(w, "{blocks}")?;
 
     Ok(())
 }
