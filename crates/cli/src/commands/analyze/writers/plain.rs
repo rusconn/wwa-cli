@@ -9,34 +9,39 @@ pub(in super::super) fn write(
     analyses: &[Analysis],
     enemies: &[Enemy],
 ) -> Result<()> {
-    let mut first = true;
+    let mut iter = enemies
+        .iter()
+        .zip(analyses)
+        .filter(|(_, analysis)| !matches!(analysis, Analysis::NoDamage));
 
-    for (enemy, analysis) in enemies.iter().zip(analyses) {
-        if matches!(analysis, Analysis::NoDamage) {
-            continue;
-        }
-
-        if !first {
+    if let Some((enemy, analysis)) = iter.next() {
+        write_block(w, enemy, analysis)?;
+        for (enemy, analysis) in iter {
             writeln!(w)?;
+            write_block(w, enemy, analysis)?;
         }
-        first = false;
-        writeln!(w, "{}", enemy.name)?;
+    }
 
-        match analysis {
-            Analysis::Blocked { atk_inc } => {
-                write!(w, "  †+{atk_inc} ⇒ ok")?;
-            }
-            Analysis::Damage {
-                atk_inc,
-                atk_reduction,
-                def_reduction,
-            } => {
-                writeln!(w, "  †+{atk_inc} ⇒ -{atk_reduction}")?;
-                write!(w, "  ⛨+1 ⇒ -{def_reduction}")?;
-            }
-            Analysis::NoDamage => {
-                unreachable!("NoDamage is skipped by `continue`");
-            }
+    Ok(())
+}
+
+fn write_block(w: &mut impl Write, enemy: &Enemy, analysis: &Analysis) -> Result<()> {
+    writeln!(w, "{}", enemy.name)?;
+
+    match analysis {
+        Analysis::Blocked { atk_inc } => {
+            write!(w, "  †+{atk_inc} ⇒ ok")?;
+        }
+        Analysis::Damage {
+            atk_inc,
+            atk_reduction,
+            def_reduction,
+        } => {
+            writeln!(w, "  †+{atk_inc} ⇒ -{atk_reduction}")?;
+            write!(w, "  ⛨+1 ⇒ -{def_reduction}")?;
+        }
+        Analysis::NoDamage => {
+            unreachable!("already filtered by caller");
         }
     }
 
