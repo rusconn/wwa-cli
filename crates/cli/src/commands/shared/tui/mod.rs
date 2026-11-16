@@ -7,7 +7,7 @@ pub(crate) mod status_bar;
 
 use anyhow::Result;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
-use ratatui::{DefaultTerminal, Frame, layout::Rect};
+use ratatui::{Frame, layout::Rect};
 
 pub(crate) trait TuiApp {
     /// Draw the whole frame. `area` is the full terminal area.
@@ -18,30 +18,18 @@ pub(crate) trait TuiApp {
 }
 
 pub(crate) fn run(app: &mut impl TuiApp) -> Result<()> {
-    let _guard = TerminalGuard;
-    let mut terminal = ratatui::try_init()?;
-    run_loop(&mut terminal, app)
-}
-
-struct TerminalGuard;
-
-impl Drop for TerminalGuard {
-    fn drop(&mut self) {
-        ratatui::restore();
-    }
-}
-
-fn run_loop(terminal: &mut DefaultTerminal, app: &mut impl TuiApp) -> Result<()> {
-    loop {
-        terminal.draw(|frame| app.draw(frame, frame.area()))?;
-        let event = crossterm::event::read()?;
-        let Some(key) = press_or_repeat(&event) else {
-            continue;
-        };
-        if is_ctrl_c(key) || app.handle_key(key) {
-            break Ok(());
+    ratatui::run(|terminal| {
+        loop {
+            terminal.draw(|frame| app.draw(frame, frame.area()))?;
+            let event = crossterm::event::read()?;
+            let Some(key) = press_or_repeat(&event) else {
+                continue;
+            };
+            if is_ctrl_c(key) || app.handle_key(key) {
+                break Ok(());
+            }
         }
-    }
+    })
 }
 
 fn press_or_repeat(event: &Event) -> Option<KeyEvent> {
