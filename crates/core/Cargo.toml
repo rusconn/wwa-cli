@@ -1,9 +1,9 @@
 [package]
 name = "wwa"
 version = "0.1.0"
-edition = "2024"
+edition.workspace = true
 rust-version.workspace = true
-license = "MIT"
+license.workspace = true
 
 [features]
 default = ["analyze", "breakpoint"]
@@ -13,7 +13,7 @@ serde = ["dep:serde"]
 
 [dependencies]
 rustc-hash = { version = "2.1.2", optional = true }
-serde = { version = "1.0.228", optional = true, features = ["derive"] }
+serde = { workspace = true, optional = true }
 
 [dev-dependencies]
 criterion = "0.8.2"
@@ -23,5 +23,5 @@ name = "breakpoint"
 harness = false
 required-features = ["breakpoint"]
 
-[lints.clippy]
-pedantic = "warn"
+[lints]
+workspace = true
